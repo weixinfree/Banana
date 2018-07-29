@@ -29,7 +29,7 @@ System.out.println("result = " + result); // result = 99
 class Presenter implements LifecycleAwareMixin {
     
     public Presenter(Context context) {
-        bindLifecycleOn(context);
+        bindLifecycleTo(context);
     }
     
     void requestNetwork() {
