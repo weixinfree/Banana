@@ -1,35 +1,85 @@
-# Banana
 
-包含2个主要的部分：类似java8 Stream的函数式编程api； 以及 利用Java8新语法实现的Mixin。
+# Bananna
 
-### 如何在Android工程中开启Java8支持
-[java8-support](https://developer.android.com/studio/write/java8-support)
+在Android工程中，使用Java8语言特性，提高生产力的Lib
 
-### Stream like
+主要提供了2部分功能：
+1. 借助lambda表达式，实现的函数式编程工具类 Stream（类似 Java8 的 java.util.Stream）
+2. 借助接口default方法和静态方法实现的Mixin（类似ruby 的mixin）。主要实现了 LifecycleAwareMixin，可以实现低侵入式的生命周期注入
+
+### Stream
 ```
-    @Test
-    public void test_concat() {
-        final List<Object> list = Stream.empty()
-                .concat(Stream.range(0, 10))
-                .concat(Stream.range(10, 30))
-                .concat(Stream.range(30, 90))
-                .concat(Stream.of(90, 91, 92))
-                .concat(Stream.iterate(93, Operators::inc).limit(7))
-                .toList();
+final Integer result = Stream.of(1, 2, 3)
+        .concat(Stream.range(4, 10))
+        .concat(Stream.iterate(10, Operators::inc).limit(10))
+        .concat(Stream.generate(() -> -1).limit(10).skip(3))
+        .filter(v -> v % 2 == 0)
+        .map(Operators::inc)
+        .reduce(0, Operators::add);
 
-        assertThat(list, hasSize(100));
-        assertThat(list, allOf(
-                hasItem(0),
-                hasItem(10),
-                hasItem(30),
-                hasItem(31),
-                hasItem(32),
-                hasItem(33),
-                hasItem(90),
-                hasItem(91),
-                hasItem(92),
-                hasItem(99),
-                not(hasItem(100))
-        ));   
+System.out.println("result = " + result); // result = 99
+```
+
+### LifecycleAwareMixin
+
+
+例子:
+
+```
+class Presenter implements LifecycleAwareMixin {
+    
+    public Presenter(Context context) {
+        bindLifecycleOn(context);
     }
+    
+    void requestNetwork() {
+        
+        final Canncellable cancelRequest = networkCalls();
+        
+        cancelOnDestroy(canceRequest::cancel);
+        
+        # cancelOnStop
+        # cancelOnPause
+        
+        ...
+    
+    }
+}
+```
+
+```
+public class MainActivity extends Activity implements LifecycleAwareMixin {
+
+    private static final String TAG = ">>>MainActivity<<<";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        runOnceOnDestroy(() -> Log.d(TAG, "this is will run on Destroy"));
+
+        runOnceOnStop(() -> Log.d(TAG, "this is will run on Stop"));
+
+        runOnceOnPause(() -> Log.d(TAG, "this is will run on pause"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity.onDestroy");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "MainActivity.onStop");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "MainActivity.onPause");
+    }
+}
 ```

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import xin.banana.base.Function;
 import xin.banana.base.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -276,5 +277,18 @@ public class StreamTest {
                 hasItem(99),
                 not(hasItem(100))
         ));
+    }
+
+    @Test
+    public void test_compose() {
+        final Integer result = Stream.of(1, 2, 3)
+                .concat(Stream.range(4, 10))
+                .concat(Stream.iterate(10, Operators::inc).limit(10))
+                .concat(Stream.generate(() -> -1).limit(10).skip(3))
+                .filter(v -> v % 2 == 0)
+                .map(Operators::inc)
+                .reduce(0, Operators::add);
+
+        System.out.println("result = " + result);
     }
 }

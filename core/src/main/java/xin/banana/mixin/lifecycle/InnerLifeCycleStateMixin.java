@@ -45,17 +45,34 @@ interface InnerLifeCycleStateMixin extends DynamicPropMixin {
         return prop;
     }
 
-    default void callDestroyOnceHooks() {
+    default void callOnCreateOnceHooks() {
+        Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnCreate))
+                .forEach_(Runnable::run);
+    }
+
+    default void callOnStartOnceHooks() {
+        Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnStart))
+                .forEach_(Runnable::run);
+    }
+
+
+    default void callOnResumeOnceHooks() {
+        Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnResume))
+                .forEach_(Runnable::run);
+    }
+
+
+    default void callOnDestroyOnceHooks() {
         Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnDestroy))
                 .forEach_(Runnable::run);
     }
 
-    default void callStopOnceHooks() {
+    default void callOnStopOnceHooks() {
         Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnStop))
                 .forEach_(Runnable::run);
     }
 
-    default void callPauseOnceHooks() {
+    default void callOnPauseOnceHooks() {
         Stream.of(getAndClearActionsByLifecycle(LifeCycle.OnPause))
                 .forEach_(Runnable::run);
     }

@@ -5,6 +5,9 @@ package xin.banana.mixin.lifecycle;
  * Created by wangwei on 2018/07/27.
  */
 public enum LifeCycle {
+    OnCreate,
+    OnStart,
+    OnResume,
     OnPause,
     OnStop,
     OnDestroy

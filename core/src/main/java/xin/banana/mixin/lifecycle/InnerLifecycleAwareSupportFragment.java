@@ -1,5 +1,7 @@
 package xin.banana.mixin.lifecycle;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 /**
@@ -10,18 +12,36 @@ public class InnerLifecycleAwareSupportFragment extends Fragment implements Inne
     @Override
     public void onDestroy() {
         super.onDestroy();
-        callDestroyOnceHooks();
+        callOnDestroyOnceHooks();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        callStopOnceHooks();
+        callOnStopOnceHooks();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        callPauseOnceHooks();
+        callOnPauseOnceHooks();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        callOnResumeOnceHooks();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        callOnStartOnceHooks();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        callOnCreateOnceHooks();
     }
 }
