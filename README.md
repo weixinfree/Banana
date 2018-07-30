@@ -1,5 +1,10 @@
 
-# Banana   
+# Banana
+
+### TODO
+1. 将Stream 和 mixin 拆分到两个module
+2. 添加ComponentLifecycle
+3. 添加ServiceCenter
 
 [![](https://jitpack.io/v/weixinfree/Banana.svg)](https://jitpack.io/#weixinfree/Banana)
 
