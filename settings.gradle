@@ -1,1 +1,1 @@
-include ':app', ':stream'
+include ':app', ':stream', ':mixin'
