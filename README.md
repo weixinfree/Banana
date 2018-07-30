@@ -1,11 +1,6 @@
 
 # Banana
 
-### TODO
-1. 将Stream 和 mixin 拆分到两个module
-2. 添加ComponentLifecycle
-3. 添加ServiceCenter
-
 [![](https://jitpack.io/v/weixinfree/Banana.svg)](https://jitpack.io/#weixinfree/Banana)
 
 在Android工程中，使用Java8语言特性，提高生产力的Lib
@@ -13,9 +8,6 @@
 主要提供了2部分功能：
 1. 借助lambda表达式，实现的函数式编程工具类 Stream（类似 Java8 的 java.util.Stream）
 2. 借助接口default方法和静态方法实现的Mixin（类似ruby 的mixin）。主要实现了 LifecycleAwareMixin，可以实现低侵入式的生命周期注入
-
-
-
 
 ### Stream
 ```
