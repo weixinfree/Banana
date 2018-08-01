@@ -1,34 +1,39 @@
 
 # Banana
 
+### TODO
+1. 定位改变，Android上的类库
+2. Component + ServiceFetcher + (Glide/网络库/storage) + 动态dsl描述的reactive view体系 + module内的架构模式(状态管理)
+3. bolts + stream 异步编程模型 替代java
+4. mixin
+5. 图片加载和管理
+6. 网络库
+7. binding/ increment dom
 
-在Android工程中，使用Java8语言特性，提高生产力的Lib
-
-主要提供了2部分功能：
-1. 借助lambda表达式，实现的函数式编程工具类 Stream（类似 Java8 的 java.util.Stream）
-2. 借助接口default方法和静态方法实现的Mixin（类似ruby 的mixin）。主要实现了 LifecycleAwareMixin，可以实现低侵入式的生命周期注入
-
-### gradle
+### 使用
 
 [![](https://jitpack.io/v/weixinfree/Banana.svg)](https://jitpack.io/#weixinfree/Banana)
 
 ```
 # 1. add this in project root build.gradle
 allprojects {
-        repositories {
-                ...
-                maven { url 'https://jitpack.io' }
-        }
+    repositories {
+                 ...
+                 maven { url 'https://jitpack.io' }
+    }
 }
 
 # 2. add implementation in module build.gradle
 dependencies {
-        implementation 'com.github.weixinfree.Banana:stream:0.0.2'
-        implementation 'com.github.weixinfree.Banana:mixin:0.0.2'
+    implementation 'com.github.weixinfree.Banana:stream:0.0.2'
+    implementation 'com.github.weixinfree.Banana:mixin:0.0.2'
 }
 ```
 
 ### Stream
+
+利用Java8 lambda实现的 java.util.Stream api like 库
+
 ```
 final Integer result = Stream.of(1, 2, 3)
         .concat(Stream.range(4, 10))
@@ -43,8 +48,10 @@ System.out.println("result = " + result); // result = 99
 
 ### LifecycleAwareMixin
 
+使用Java8 Interface default method 和 static method 实现的生命周期mixin。
+可以方便的将Activity生命周期注入到各种业务上下文中
 
-例子:
+*例子1*
 
 ```
 class Presenter implements LifecycleAwareMixin {
@@ -68,6 +75,7 @@ class Presenter implements LifecycleAwareMixin {
 }
 ```
 
+*例子2:*
 ```
 public class MainActivity extends Activity implements LifecycleAwareMixin {
 
