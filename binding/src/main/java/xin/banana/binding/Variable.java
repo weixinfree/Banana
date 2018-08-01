@@ -17,6 +17,7 @@ public class Variable<T> {
 
     private T mValue;
 
+    @SuppressWarnings("unused")
     public Variable() {
     }
 
@@ -56,5 +57,12 @@ public class Variable<T> {
 
     private static boolean isUIThread() {
         return Looper.myLooper() == Looper.getMainLooper();
+    }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "mValue=" + mValue +
+                '}';
     }
 }

@@ -8,6 +8,7 @@ import android.widget.TextView;
 import xin.banana.base.BiConsumer;
 import xin.banana.binding.Binding;
 import xin.banana.binding.Variable;
+import xin.banana.demo.setting.ModifyUserNameActivity;
 import xin.banana.mixin.lifecycle.LifecycleAwareMixin;
 
 public class MainActivity extends Activity implements LifecycleAwareMixin {
@@ -26,7 +27,10 @@ public class MainActivity extends Activity implements LifecycleAwareMixin {
 
         binding.on(text)
                 .bind((BiConsumer<TextView, ? super String>) TextView::setText, nameVar)
-                .onClick(v -> nameVar.set(String.valueOf(Math.random())));
+                .onClick(v -> {
+                    nameVar.set(String.valueOf(Math.random()));
+                    ModifyUserNameActivity.start(v.getContext());
+                });
 
         cancelOnDestroy(binding::unbind);
 

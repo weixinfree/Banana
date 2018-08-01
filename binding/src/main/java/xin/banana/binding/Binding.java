@@ -2,12 +2,12 @@ package xin.banana.binding;
 
 import android.view.View;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import xin.banana.base.BiConsumer;
 import xin.banana.base.Consumer;
-import xin.banana.stream.Stream;
+import xin.banana.base.Function;
 
 import static xin.banana.base.Objects.requireNonNull;
 
@@ -21,14 +21,32 @@ public class Binding {
         return new Binder<>(requireNonNull(view));
     }
 
-    private final List<Runnable> unBinders = new ArrayList<>();
+    public <T> void bind(Consumer<? super T> action, Variable<T> variable) {
+        requireNonNull(action);
+        requireNonNull(variable);
+
+        addUnBinder(variable.registerObserver(() -> action.accept(variable.get())));
+    }
+
+    public <T, R> void bind(Consumer<? super R> action, Variable<T> variable, Function<T, R> transform) {
+        requireNonNull(action);
+        requireNonNull(variable);
+        requireNonNull(transform);
+
+        addUnBinder(variable.registerObserver(() -> action.accept(transform.apply(variable.get()))));
+    }
+
+    private final List<Runnable> unBinders = new LinkedList<>();
 
     private void addUnBinder(Runnable unBinder) {
         unBinders.add(requireNonNull(unBinder));
     }
 
     public void unbind() {
-        Stream.forEach_(unBinders, Runnable::run);
+        while (!unBinders.isEmpty()) {
+            final Runnable unbind = unBinders.remove(0);
+            unbind.run();
+        }
     }
 
     public class Binder<V extends View> {
@@ -39,6 +57,14 @@ public class Binding {
             this.view = view;
         }
 
+        public <T> Binder<V> bind(BiConsumer<V, ? super T> attrSetter, T value) {
+            requireNonNull(attrSetter);
+            requireNonNull(value);
+
+            attrSetter.accept(view, value);
+            return this;
+        }
+
         public <T> Binder<V> bind(BiConsumer<V, ? super T> attrSetter, Variable<? extends T> variable) {
             requireNonNull(attrSetter);
             requireNonNull(variable);
@@ -47,6 +73,16 @@ public class Binding {
             return this;
         }
 
+        public <T, R> Binder<V> bind(BiConsumer<V, R> attrSetter, Variable<? extends T> variable, Function<T, ? extends R> transform) {
+            requireNonNull(attrSetter);
+            requireNonNull(variable);
+            requireNonNull(transform);
+
+            addUnBinder(variable.registerObserver(() -> attrSetter.accept(view, transform.apply(variable.get()))));
+            return this;
+        }
+
+        @SuppressWarnings("unused")
         public <T> Binder<V> bind2(Consumer<? super T> action, Variable<? extends T> variable) {
             requireNonNull(action);
             requireNonNull(variable);
@@ -64,6 +100,7 @@ public class Binding {
             return view;
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public Binder<V> onClick(View.OnClickListener onClickListener) {
             view.setOnClickListener(requireNonNull(onClickListener));
             return this;
