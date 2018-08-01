@@ -1,1 +1,1 @@
-include ':app', ':stream', ':mixin', ':components'
+include ':app', ':stream', ':mixin', ':components', ':binding'

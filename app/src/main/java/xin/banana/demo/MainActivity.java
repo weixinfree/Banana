@@ -3,7 +3,11 @@ package xin.banana.demo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
+import xin.banana.base.BiConsumer;
+import xin.banana.binding.Binding;
+import xin.banana.binding.Variable;
 import xin.banana.mixin.lifecycle.LifecycleAwareMixin;
 
 public class MainActivity extends Activity implements LifecycleAwareMixin {
@@ -14,6 +18,17 @@ public class MainActivity extends Activity implements LifecycleAwareMixin {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final TextView text = findViewById(R.id.text);
+
+        final Binding binding = new Binding();
+        final Variable<String> nameVar = new Variable<>("click me");
+
+        binding.on(text)
+                .bind((BiConsumer<TextView, ? super String>) TextView::setText, nameVar)
+                .onClick(v -> nameVar.set(String.valueOf(Math.random())));
+
+        cancelOnDestroy(binding::unbind);
 
         runOnceOnDestroy(() -> Log.d(TAG, "this is will run on Destroy"));
 
@@ -39,4 +54,5 @@ public class MainActivity extends Activity implements LifecycleAwareMixin {
         super.onPause();
         Log.d(TAG, "MainActivity.onPause");
     }
+
 }
