@@ -9,15 +9,16 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 
+import xin.banana.components.Component;
 import xin.banana.stream.Stream;
 
 /**
  * 内部工具类
  * Created by wangwei on 2018/07/30.
  */
-public class Utils {
+public class InnerUtils {
 
-    private Utils() {
+    private InnerUtils() {
         //no instance
     }
 
@@ -46,6 +47,18 @@ public class Utils {
             return writer.toString();
         } catch (IOException e) {
             return "";
+        }
+    }
+
+    public static Component newInstance(String className) {
+        try {
+            return ((Component) Class.forName(className).newInstance());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
         }
     }
 }

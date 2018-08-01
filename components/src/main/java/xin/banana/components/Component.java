@@ -10,15 +10,15 @@ import android.content.res.Configuration;
  */
 public interface Component extends ComponentCallbacks2 {
 
-    default void onAppCreate(Application application) {
+    default void onAppCreate(@SuppressWarnings("unused") Application application) {
 
     }
 
-    default void onUserLogin() {
+    default void onUserLoginSuccess() {
 
     }
 
-    default void onUserLogout() {
+    default void onUserLogoutSuccess() {
 
     }
 
