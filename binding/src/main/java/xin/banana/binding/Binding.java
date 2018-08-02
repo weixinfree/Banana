@@ -24,6 +24,8 @@ import static xin.banana.base.Objects.requireNonNull;
 public class Binding {
 
     public static Binding with(Object lifeCycleAwareObj) {
+        requireNonNull(lifeCycleAwareObj);
+
         final Binding binding = new Binding();
         LifeCycleAware.runOnLifeCycleOnce(lifeCycleAwareObj, LifeCycle.OnDestroy, binding::unbind);
         return binding;

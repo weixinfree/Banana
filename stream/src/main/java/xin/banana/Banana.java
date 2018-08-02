@@ -2,12 +2,9 @@ package xin.banana;
 
 import android.app.Application;
 
+import static xin.banana.base.Objects.checkState;
 import static xin.banana.base.Objects.requireNonNull;
 
-/**
- * $end$
- * Created by wangwei on 2018/07/30.
- */
 public class Banana {
 
     private Banana() {
@@ -21,6 +18,7 @@ public class Banana {
     }
 
     public static Application getApplication() {
+        checkState(sApp != null, "Banana not installed, call Banana.install() first!");
         return sApp;
     }
 }

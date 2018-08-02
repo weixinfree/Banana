@@ -6,6 +6,8 @@ import android.view.ViewGroup;
 import xin.banana.Banana;
 import xin.banana.base.Consumer;
 
+import static xin.banana.base.Objects.requireNonNull;
+
 /**
  * 视图构建dsl
  * Created by wangwei on 2018/08/01.
@@ -29,13 +31,13 @@ public class Muggle {
         return _density;
     }
 
-    private static volatile float scaledDensity = -1;
+    private static volatile float _scaledDensity = -1;
 
     private static float getScaledDensity() {
-        if (scaledDensity <= 0) {
-            scaledDensity = Banana.getApplication().getResources().getDisplayMetrics().scaledDensity;
+        if (_scaledDensity <= 0) {
+            _scaledDensity = Banana.getApplication().getResources().getDisplayMetrics().scaledDensity;
         }
-        return scaledDensity;
+        return _scaledDensity;
     }
 
     public static int $dp(double dp) {
@@ -48,6 +50,8 @@ public class Muggle {
 
     @SuppressWarnings("WeakerAccess")
     public static <Layout extends ViewGroup.LayoutParams> Layout defaultLayout(Class<Layout> clazz) {
+        requireNonNull(clazz);
+
         try {
             return clazz.getConstructor(int.class, int.class).newInstance(
                     wrap_content, wrap_content);
@@ -77,22 +81,22 @@ public class Muggle {
         final Layout layout;
 
         Leaf(V view, Layout layout) {
-            this.view = view;
-            this.layout = layout;
+            this.view = requireNonNull(view);
+            this.layout = requireNonNull(layout);
             view.setLayoutParams(layout);
         }
 
         public Leaf<V, Layout> layout(Consumer<? super Layout> layoutSetter) {
-            layoutSetter.accept(layout);
+            requireNonNull(layoutSetter).accept(layout);
             return this;
         }
 
         public Leaf<V, Layout> attrs(Consumer<? super V> attrSetter) {
-            attrSetter.accept(view);
+            requireNonNull(attrSetter).accept(view);
             return this;
         }
 
-        public View asView() {
+        public View getView() {
             return this.view;
         }
     }
@@ -104,7 +108,7 @@ public class Muggle {
         }
 
         public Tree<V, Layout> child(Leaf leaf) {
-            this.view.addView(leaf.view);
+            this.view.addView(requireNonNull(leaf).view);
             return this;
         }
 

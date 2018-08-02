@@ -5,9 +5,11 @@ import android.os.Looper;
 import java.util.ArrayList;
 import java.util.List;
 
+import xin.banana.base.Objects;
 import xin.banana.stream.Stream;
 
 import static xin.banana.base.Objects.checkState;
+import static xin.banana.base.Objects.requireNonNull;
 
 /**
  * 可观察的变量
@@ -27,7 +29,7 @@ public class Variable<T> {
 
     public void set(T newValue) {
         checkState(isUIThread());
-        if (mValue == newValue) return;
+        if (mValue == newValue || Objects.equals(mValue, newValue)) return;
 
         mValue = newValue;
         notifyObservables();
@@ -41,7 +43,7 @@ public class Variable<T> {
 
     public Runnable registerObserver(Runnable action) {
 
-        observables.add(action);
+        observables.add(requireNonNull(action));
 
         if (mValue != null) {
             // immediately dispatch

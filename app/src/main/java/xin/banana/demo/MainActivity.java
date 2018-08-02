@@ -19,8 +19,6 @@ public class MainActivity extends Activity implements LifecycleAwareMixin {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Banana.install(getApplication());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

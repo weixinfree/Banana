@@ -29,10 +29,20 @@ import static xin.banana.ui.dsl.Muggle.tree;
 import static xin.banana.ui.dsl.Muggle.wrap_content;
 
 /**
- * $end$
+ * 用户修改名字
  * Created by wangwei on 2018/08/01.
  */
 public class ModifyUserNameActivity extends Activity implements LifecycleAwareMixin {
+
+    /*
+
+    1. View + 胶水代码:
+    Activity, Fragment, View 职责: 构建ViewTree，绑定，事件流触发Action
+
+    2. MV* 中 * 部分的角色，由binding承担
+
+    3. M 由store 以及 配置Store完成业务的代码部分承担
+    */
 
     public static void start(Context context) {
         Intent starter = new Intent(context, ModifyUserNameActivity.class);
@@ -49,16 +59,15 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
         store.bindLifecycleTo(this);
 
         final Binding binding = Binding.with(this);
-
         setContentView(
-                newContainer()
+                container()
                         // input
-                        .child(newUserInputView())
+                        .child(userInputView())
                         // 提示
-                        .child(newRemindLenView(binding))
+                        .child(remindLenView(binding))
                         // 提交按钮
-                        .child(newSubmitButton())
-                        .asView());
+                        .child(submitButton())
+                        .getView());
 
         binding.bind(
                 msg -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show(),
@@ -68,11 +77,12 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
     }
 
-    private Muggle.Tree<LinearLayout, RelativeLayout.LayoutParams> newContainer() {
+    private Muggle.Tree<LinearLayout, RelativeLayout.LayoutParams> container() {
         return tree(new LinearLayout(this), RelativeLayout.LayoutParams.class)
                 .attrs(view -> {
                     view.setOrientation(LinearLayout.VERTICAL);
                     view.setGravity(Gravity.CENTER_HORIZONTAL);
+                    view.setPadding($dp(16), 0, $dp(16), 0);
                 })
                 .layout(params -> {
                     params.width = match_parent;
@@ -80,11 +90,10 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                 });
     }
 
-    private Muggle.Leaf<Button, LinearLayout.LayoutParams> newSubmitButton() {
+    private Muggle.Leaf<Button, LinearLayout.LayoutParams> submitButton() {
         return leaf(new Button(this), LinearLayout.LayoutParams.class)
                 .attrs(button -> {
                     button.setText("提交");
-                    button.setTextSize(20);
                     button.setOnClickListener(v ->
                             store.dispatch(ModifyUserNameStore.ACTION_SUBMIT, null));
                 })
@@ -96,7 +105,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
     }
 
     @SuppressLint("RtlHardcoded")
-    private Muggle.Leaf<TextView, LinearLayout.LayoutParams> newRemindLenView(Binding binding) {
+    private Muggle.Leaf<TextView, LinearLayout.LayoutParams> remindLenView(Binding binding) {
         return leaf(new TextView(this), LinearLayout.LayoutParams.class)
                 .layout(layoutParams -> {
                     layoutParams.width = match_parent;
@@ -120,7 +129,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                 });
     }
 
-    private Muggle.Leaf<EditText, LinearLayout.LayoutParams> newUserInputView() {
+    private Muggle.Leaf<EditText, LinearLayout.LayoutParams> userInputView() {
         return leaf(new EditText(this), LinearLayout.LayoutParams.class)
                 .attrs(view -> {
                     view.setTextSize(18);
