@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,7 +52,6 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
     private final ModifyUserNameStore store = new ModifyUserNameStore();
 
-    @SuppressLint("RtlHardcoded")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +66,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                         // 提示
                         .child(remindLenView(binding))
                         // 提交按钮
-                        .child(submitButton())
+                        .child(submitButton(binding))
                         .getView());
 
         binding.bind(
@@ -90,12 +90,15 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                 });
     }
 
-    private Muggle.Leaf<Button, LinearLayout.LayoutParams> submitButton() {
+    private Muggle.Leaf<Button, LinearLayout.LayoutParams> submitButton(Binding binding) {
         return leaf(new Button(this), LinearLayout.LayoutParams.class)
                 .attrs(button -> {
                     button.setText("提交");
                     button.setOnClickListener(v ->
                             store.dispatch(ModifyUserNameStore.ACTION_SUBMIT, null));
+
+                    binding.on(button)
+                            .bind(Button::setEnabled, store.userInputName, userInput -> !TextUtils.isEmpty(userInput) && userInput.length() >= 3);
                 })
                 .layout(layoutParams -> {
                     layoutParams.width = match_parent;

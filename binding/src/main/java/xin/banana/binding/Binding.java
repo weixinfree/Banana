@@ -82,6 +82,7 @@ public class Binding {
         unBinders.add(requireNonNull(unBinder));
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void unbind() {
         while (!unBinders.isEmpty()) {
             final Runnable unbind = unBinders.remove(0);
@@ -113,7 +114,8 @@ public class Binding {
             return this;
         }
 
-        public <T, R> Binder<V> bind(BiConsumer<V, R> attrSetter, Variable<? extends T> variable, Function<T, ? extends R> transform) {
+        @SuppressWarnings("UnusedReturnValue")
+        public <T, A> Binder<V> bind(BiConsumer<V, A> attrSetter, Variable<? extends T> variable, Function<T, ? extends A> transform) {
             requireNonNull(attrSetter);
             requireNonNull(variable);
             requireNonNull(transform);
