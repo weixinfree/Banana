@@ -24,11 +24,11 @@ public interface StoreMixin extends DynamicPropMixin {
         }
     }
 
-    default <Var, ActionData> void bind(int action, Variable<Var> val, BiConsumer<Variable<Var>, ActionData> update) {
+    default <Var, ActionData> void bindAction(int action, Variable<Var> val, BiConsumer<Variable<Var>, ActionData> update) {
         setProp("_bind_" + action, (Consumer<ActionData>) (ActionData actionData) -> update.accept(val, actionData));
     }
 
-    default <ActionData> void bind(int action, Consumer<? extends ActionData> update) {
+    default <ActionData> void bindAction(int action, Consumer<? extends ActionData> update) {
         setProp("_bind_" + action, update);
     }
 }

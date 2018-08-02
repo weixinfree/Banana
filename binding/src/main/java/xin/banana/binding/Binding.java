@@ -1,6 +1,9 @@
 package xin.banana.binding;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +11,8 @@ import java.util.List;
 import xin.banana.base.BiConsumer;
 import xin.banana.base.Consumer;
 import xin.banana.base.Function;
+import xin.banana.mixin.lifecycle.LifeCycle;
+import xin.banana.mixin.lifecycle.LifeCycleAware;
 
 import static xin.banana.base.Objects.requireNonNull;
 
@@ -15,7 +20,18 @@ import static xin.banana.base.Objects.requireNonNull;
  * 数据绑定
  * Created by wangwei on 2018/08/01.
  */
+@SuppressWarnings("unused")
 public class Binding {
+
+    public static Binding with(Object lifeCycleAwareObj) {
+        final Binding binding = new Binding();
+        LifeCycleAware.runOnLifeCycleOnce(lifeCycleAwareObj, LifeCycle.OnDestroy, binding::unbind);
+        return binding;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public Binding() {
+    }
 
     public <V extends View> Binder<V> on(V view) {
         return new Binder<>(requireNonNull(view));
@@ -28,12 +44,34 @@ public class Binding {
         addUnBinder(variable.registerObserver(() -> action.accept(variable.get())));
     }
 
-    public <T, R> void bind(Consumer<? super R> action, Variable<T> variable, Function<T, R> transform) {
+    public <T, A> void bind(Consumer<? super A> action, Variable<T> variable, Function<T, A> transform) {
         requireNonNull(action);
         requireNonNull(variable);
         requireNonNull(transform);
 
         addUnBinder(variable.registerObserver(() -> action.accept(transform.apply(variable.get()))));
+    }
+
+    public static <V extends TextView> void onTextChanged(V text, Consumer<Editable> consumer) {
+        requireNonNull(text);
+        requireNonNull(consumer);
+        
+        text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                consumer.accept(s);
+            }
+        });
     }
 
     private final List<Runnable> unBinders = new LinkedList<>();

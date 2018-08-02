@@ -22,13 +22,16 @@ public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
     public final Variable<Boolean> modifySuccess = new Variable<>();
 
     public ModifyUserNameStore() {
-        bind(ACTION_SUBMIT, (obj) ->
+        bindAction(ACTION_SUBMIT, (obj) ->
                 Task.delay(1000)
                         .onSuccess((Continuation<Void, Void>) task -> {
                             modifySuccess.set(Math.random() > 0.5);
                             return null;
                         }, Task.UI_THREAD_EXECUTOR));
 
-        bind(ACTION_USER_INPUT_CHANGED, userInputName, (BiConsumer<Variable<String>, String>) Variable::set);
+        bindAction(
+                ACTION_USER_INPUT_CHANGED,
+                userInputName,
+                (BiConsumer<Variable<String>, String>) Variable::set);
     }
 }
