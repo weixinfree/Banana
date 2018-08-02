@@ -25,17 +25,17 @@
     - 长程关联很少出现（后台业务），各种尺度的短程关联动态变化 / 各组件之间会相互关联，但深度关联较少
 
 
-=> 组件化解决方案: Components + ServiceFetcher （微信方案）
+*=> 组件化解决方案: `Components + ServiceFetcher` （类似微信方案）*
 
 ### 2. 非四大组件上下文中对生命周期的需求
 - mixin 是组合的一种简化形式
 - mixin 模式是最适合的生命周期注入方式
-=> 生命周期注入方案: LifecycleAwareMixin
+*=> 生命周期注入方案: `LifecycleAwareMixin`*
 ### 3. 单一module内的代码组织和职责划分
 - reactive view 趋势性, vue, react, flutter ... 等等
-- reactive view 模式 相较于 passive View 模式更简洁清晰，生产力更高 => Binding / Muggle
-- 复杂业务下，单向数据流更容易管理和理解 => StoreMixin
-- 系统内业务的另一个倾向是相互关联，store center 提供了简洁可控的 数据/状态层面的关联基础 => StoreMixin
+- reactive view 模式 相较于 passive View 模式更简洁清晰，生产力更高 => `Binding` / `Muggle`
+- 复杂业务下，单向数据流更容易管理和理解 => `StoreMixin`
+- 系统内业务的另一个倾向是相互关联，store center 提供了简洁可控的 数据/状态层面的关联基础 => `StoreMixin`
 
 ## 其它技术选型倾向
  (简洁,清晰,高实现质量 最重要，性能次之，功能多/复杂度高的排除):
@@ -44,7 +44,7 @@
 3. 持久化 => json-base 或者方便的 Room，sugar等
 4. 存储管理 => storage
 5. 线程管理 => bolts-task
-6. 函数式编程 => stream
+6. 函数式编程 => `stream`
 
 ## 生产力TODO:
 1. view 的在线预览，调试
