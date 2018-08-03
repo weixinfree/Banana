@@ -58,7 +58,7 @@ public class Variable<T> {
     }
 
     private static boolean isUIThread() {
-        return Looper.myLooper() == Looper.getMainLooper();
+        return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
     @Override
