@@ -9,10 +9,6 @@ import xin.banana.base.Supplier;
 
 import static xin.banana.base.Objects.requireNonNull;
 
-/**
- * $end$
- * Created by wangwei on 2018/07/30.
- */
 public class ServiceFetcher {
 
     /**

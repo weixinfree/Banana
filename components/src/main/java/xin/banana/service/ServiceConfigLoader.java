@@ -15,10 +15,6 @@ import xin.banana.stream.Stream;
 import static xin.banana.InnerUtils.newInstance;
 import static xin.banana.InnerUtils.readAssetsFiles;
 
-/**
- * $end$
- * Created by wangwei on 2018/08/01.
- */
 class ServiceConfigLoader {
 
 

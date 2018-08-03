@@ -16,10 +16,6 @@ import xin.banana.stream.Stream;
 import static xin.banana.InnerUtils.readAssetsFiles;
 import static xin.banana.stream.Stream.forEach_;
 
-/**
- * $end$
- * Created by wangwei on 2018/08/01.
- */
 class ComponentConfigLoader {
 
     private Stream<Comp> parse(String json) {

@@ -4,10 +4,6 @@ import android.app.Application;
 import android.content.ComponentCallbacks2;
 import android.content.res.Configuration;
 
-/**
- *
- * Created by wangwei on 2018/07/30.
- */
 public interface Component extends ComponentCallbacks2 {
 
     default void onAppCreate(@SuppressWarnings("unused") Application application) {

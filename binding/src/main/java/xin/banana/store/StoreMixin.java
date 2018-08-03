@@ -12,9 +12,7 @@ import static xin.banana.base.Objects.requireNonNull;
 
 /**
  * Store Mixin
- * <p>
- * 统一的管理状态，业务逻辑部分
- * <p>
+ * 统一的管理状态，业务逻辑部分，单向数据流
  * Created by wangwei on 2018/08/01.
  */
 public interface StoreMixin extends DynamicPropMixin {
