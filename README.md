@@ -53,3 +53,177 @@
 ## TODO
 1. 引用
 2. 各个模块的说明示例代码
+
+
+### demo - modify user name
+
+Store where hold states and deal business actions
+
+```java
+public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
+
+    public static final int USER_NAME_MAX_LENGTH = 16;
+
+    public static final int ACTION_SUBMIT = 0x01;
+    public static final int ACTION_USER_INPUT_CHANGED = 0x02;
+
+    /*
+    expose 给View层的是 可观察的Variable
+    内部状态 大部分应该为 pojo
+
+    final! final! final!
+     */
+    public final Variable<String> userInputName = new Variable<>("");
+    public final Variable<Boolean> modifySuccess = new Variable<>();
+
+    ModifyUserNameStore() {
+
+        /*
+        store.dispatch 是单向数据流
+        但是非 Redux 模式的不可变对象
+
+        binding 模式的 reactive view 适合可变化对象
+         */
+        bindAction(ACTION_SUBMIT, (obj) -> {
+
+                    /*
+                    选择 bolts + stream 代替 RxJava
+                    10%的复杂度，覆盖80%的功能
+                     */
+                    final CancellationTokenSource cancelToken = new CancellationTokenSource();
+                    Task.delay(1000)
+                            .onSuccess((Continuation<Void, Void>) task -> {
+                                modifySuccess.set(Math.random() > 0.5);
+                                return null;
+                            }, Task.UI_THREAD_EXECUTOR, cancelToken.getToken());
+
+                    /*
+                     生命周期注入: 恰当的时候进行cancel
+                     */
+                    cancelOnDestroy(cancelToken::cancel);
+        });
+
+        bindAction(
+                ACTION_USER_INPUT_CHANGED,
+                userInputName,
+                (BiConsumer<Variable<String>, String>) Variable::set);
+    }
+}
+```
+
+Activity - build user interface and binding, trigger business actions - glue code 
+
+```java
+public class ModifyUserNameActivity extends Activity implements LifecycleAwareMixin {
+
+    /*
+
+    1. View + 胶水代码:
+    Activity, Fragment, View 职责: 构建ViewTree，绑定，事件流触发Action
+
+    2. MV* 中 * 部分的角色，由binding承担
+
+    3. M 由store 以及 配置Store完成业务的代码部分承担
+    */
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, ModifyUserNameActivity.class);
+        context.startActivity(starter);
+    }
+
+    private final ModifyUserNameStore store = new ModifyUserNameStore();
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        store.bindLifecycleTo(this);
+
+        final Binding binding = Binding.with(this);
+        setContentView(
+                container()
+                        // input
+                        .child(userInputView())
+                        // 提示
+                        .child(remindLenView(binding))
+                        // 提交按钮
+                        .child(submitButton(binding))
+                        .getView());
+
+        binding.bind(
+                msg -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show(),
+                store.modifySuccess,
+                isSuccess -> isSuccess ? "修改成功" : "修改失败"
+        );
+
+    }
+
+    private Muggle.Tree<LinearLayout, RelativeLayout.LayoutParams> container() {
+        return tree(new LinearLayout(this), RelativeLayout.LayoutParams.class)
+                .attrs(view -> {
+                    view.setOrientation(LinearLayout.VERTICAL);
+                    view.setGravity(Gravity.CENTER_HORIZONTAL);
+                    view.setPadding($dp(16), 0, $dp(16), 0);
+                })
+                .layout(params -> {
+                    params.width = match_parent;
+                    params.height = match_parent;
+                });
+    }
+
+    private Muggle.Leaf<Button, LinearLayout.LayoutParams> submitButton(Binding binding) {
+        return leaf(new Button(this), LinearLayout.LayoutParams.class)
+                .attrs(button -> {
+                    button.setText("提交");
+                    button.setOnClickListener(v ->
+                            store.dispatch(ModifyUserNameStore.ACTION_SUBMIT, null));
+
+                    binding.on(button)
+                            .bind(Button::setEnabled, store.userInputName, userInput -> !TextUtils.isEmpty(userInput) && userInput.length() >= 3);
+                })
+                .layout(layoutParams -> {
+                    layoutParams.width = match_parent;
+                    layoutParams.height = wrap_content;
+                    layoutParams.topMargin = $dp(10);
+                });
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private Muggle.Leaf<TextView, LinearLayout.LayoutParams> remindLenView(Binding binding) {
+        return leaf(new TextView(this), LinearLayout.LayoutParams.class)
+                .layout(layoutParams -> {
+                    layoutParams.width = match_parent;
+                    layoutParams.height = wrap_content;
+                    layoutParams.topMargin = $dp(10);
+                    layoutParams.bottomMargin = $dp(10);
+                })
+                .attrs(textView -> {
+                    textView.setGravity(Gravity.LEFT);
+                    textView.setTextSize(12);
+                    textView.setTextColor(Color.LTGRAY);
+
+                    binding.on(textView).bind(
+                            TextView::setText,
+                            store.userInputName,
+                            s -> {
+                                final int len = s.length();
+                                return String.format(Locale.US, "您已经输入%d字，还剩%d字", len, ModifyUserNameStore.USER_NAME_MAX_LENGTH - len);
+
+                            });
+                });
+    }
+
+    private Muggle.Leaf<EditText, LinearLayout.LayoutParams> userInputView() {
+        return leaf(new EditText(this), LinearLayout.LayoutParams.class)
+                .attrs(view -> {
+                    view.setTextSize(18);
+                    view.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ModifyUserNameStore.USER_NAME_MAX_LENGTH)});
+                    Binding.onTextChanged(view, editable -> store.dispatch(ModifyUserNameStore.ACTION_USER_INPUT_CHANGED, editable.toString()));
+                })
+                .layout(params -> {
+                    params.height = wrap_content;
+                    params.width = match_parent;
+                });
+    }
+}
+```
