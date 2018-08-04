@@ -46,16 +46,7 @@
 5. 线程管理 => bolts-task
 6. 函数式编程 => `stream`
 
-## 生产力TODO:
-1. view 的在线预览，调试
-2. 部分动态化
-
-## TODO
-1. 引用
-2. 各个模块的说明示例代码
-
-
-### demo - modify user name
+## demo - modify user name
 
 Store where hold states and deal business actions
 
@@ -227,3 +218,15 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
     }
 }
 ```
+
+## 组件
+
+1. Stream => 函数式编程组件，类似 java.util.Stream
+2. Binding，Variable => 数据到view属性的绑定
+3. Muggle => 代码构建布局，dsl
+4. StoreMixin => 单向数据流，store center组件
+5. LifecycleAwareMixin => 生命周期注入mixin
+6. Component, ServiceFetcher => 组件生命周期 和 服务解耦组件
+
+
+
