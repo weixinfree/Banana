@@ -1,7 +1,11 @@
 package xin.banana.ui.dsl;
 
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import xin.banana.Banana;
 import xin.banana.base.Consumer;
@@ -21,6 +25,14 @@ public class Muggle {
 
     public static final int match_parent = ViewGroup.LayoutParams.MATCH_PARENT;
     public static final int wrap_content = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+    public static final int center = Gravity.CENTER;
+    public static final int center_horizontal = Gravity.CENTER_HORIZONTAL;
+    public static final int center_vertical = Gravity.CENTER_VERTICAL;
+
+    public static final Class<FrameLayout.LayoutParams> frameLayoutParams = FrameLayout.LayoutParams.class;
+    public static final Class<LinearLayout.LayoutParams> linearLayoutParams = LinearLayout.LayoutParams.class;
+    public static final Class<RelativeLayout.LayoutParams> relativeLayoutParams = RelativeLayout.LayoutParams.class;
 
     private static volatile float _density = -1;
 
