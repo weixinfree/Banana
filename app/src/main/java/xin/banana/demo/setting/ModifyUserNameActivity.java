@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.EditText;
@@ -71,8 +74,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
         binding.bind(
                 msg -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show(),
-                store.modifySuccess,
-                isSuccess -> isSuccess ? "修改成功" : "修改失败"
+                store.modifySuccess.map(isSuccess -> isSuccess ? "修改成功" : "修改失败")
         );
 
     }
@@ -98,7 +100,10 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                             store.dispatch(ModifyUserNameStore.ACTION_SUBMIT, null));
 
                     binding.on(button)
-                            .bind(Button::setEnabled, store.userInputName, userInput -> !TextUtils.isEmpty(userInput) && userInput.length() >= 3);
+                            .enabled(store.userInputName.map(userInput -> {
+                                Log.d("HAHAHA", "submitButton() called with: binding = [" + binding + "]");
+                                return !TextUtils.isEmpty(userInput) && userInput.length() >= 3;
+                            }));
                 })
                 .layout(layoutParams -> {
                     layoutParams.width = match_parent;
@@ -121,14 +126,11 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                     textView.setTextSize(12);
                     textView.setTextColor(Color.LTGRAY);
 
-                    binding.on(textView).bind(
-                            TextView::setText,
-                            store.userInputName,
-                            s -> {
+                    binding.on(textView).text(
+                            store.userInputName.map(s -> {
                                 final int len = s.length();
                                 return String.format(Locale.US, "您已经输入%d字，还剩%d字", len, ModifyUserNameStore.USER_NAME_MAX_LENGTH - len);
-
-                            });
+                            }));
                 });
     }
 
@@ -137,7 +139,23 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                 .attrs(view -> {
                     view.setTextSize(18);
                     view.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ModifyUserNameStore.USER_NAME_MAX_LENGTH)});
-                    Binding.onTextChanged(view, editable -> store.dispatch(ModifyUserNameStore.ACTION_USER_INPUT_CHANGED, editable.toString()));
+
+                    view.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            store.dispatch(ModifyUserNameStore.ACTION_USER_INPUT_CHANGED, s.toString());
+                        }
+                    });
                 })
                 .layout(params -> {
                     params.height = wrap_content;

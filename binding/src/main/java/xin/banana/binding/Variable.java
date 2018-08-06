@@ -1,10 +1,12 @@
 package xin.banana.binding;
 
+import android.os.Handler;
 import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import xin.banana.base.Function;
 import xin.banana.base.Objects;
 import xin.banana.stream.Stream;
 
@@ -27,6 +29,10 @@ public class Variable<T> {
         this.mValue = defaultValue;
     }
 
+    public void post(T newValue) {
+        new Handler(Looper.getMainLooper()).post(() -> this.set(newValue));
+    }
+
     public void set(T newValue) {
         checkState(isUIThread());
         if (mValue == newValue || Objects.equals(mValue, newValue)) return;
@@ -45,7 +51,7 @@ public class Variable<T> {
 
         observables.add(requireNonNull(action));
 
-        if (mValue != null) {
+        if (get() != null) {
             // immediately dispatch
             action.run();
         }
@@ -59,6 +65,33 @@ public class Variable<T> {
 
     private static boolean isUIThread() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
+    }
+
+    public <Result> Variable<Result> map(Function<T, ? extends Result> transformer) {
+        final Variable<Result> var = new Variable<Result>() {
+
+            @Override
+            public Result get() {
+                final T value = Variable.this.get();
+                if (value == null) {
+                    return null;
+                }
+                return transformer.apply(value);
+            }
+
+            @Override
+            public void set(Result newValue) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void post(Result newValue) {
+                throw new UnsupportedOperationException();
+            }
+        };
+
+        registerObserver(var::notifyObservables);
+        return var;
     }
 
     @Override

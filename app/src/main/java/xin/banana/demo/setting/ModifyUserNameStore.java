@@ -42,22 +42,19 @@ public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
                     选择 bolts + stream 代替 RxJava
                     10%的复杂度，覆盖80%的功能
                      */
-                    final CancellationTokenSource cancelToken = new CancellationTokenSource();
-                    Task.delay(1000)
-                            .onSuccess((Continuation<Void, Void>) task -> {
-                                modifySuccess.set(Math.random() > 0.5);
-                                return null;
-                            }, Task.UI_THREAD_EXECUTOR, cancelToken.getToken());
+            final CancellationTokenSource cancelToken = new CancellationTokenSource();
+            Task.delay(1000)
+                    .onSuccess((Continuation<Void, Void>) task -> {
+                        modifySuccess.set(Math.random() > 0.5);
+                        return null;
+                    }, Task.UI_THREAD_EXECUTOR, cancelToken.getToken());
 
                     /*
                      生命周期注入: 恰当的时候进行cancel
                      */
-                    cancelOnDestroy(cancelToken::cancel);
+            cancelOnDestroy(cancelToken::cancel);
         });
 
-        bindAction(
-                ACTION_USER_INPUT_CHANGED,
-                userInputName,
-                (BiConsumer<Variable<String>, String>) Variable::set);
+        bindAction(ACTION_USER_INPUT_CHANGED, userInputName::set);
     }
 }

@@ -2,10 +2,7 @@ package xin.banana.store;
 
 import android.support.annotation.CallSuper;
 
-import xin.banana.base.BiConsumer;
 import xin.banana.base.Consumer;
-import xin.banana.base.Objects;
-import xin.banana.binding.Variable;
 import xin.banana.mixin.dynamic.DynamicPropMixin;
 
 import static xin.banana.base.Objects.requireNonNull;
@@ -23,13 +20,6 @@ public interface StoreMixin extends DynamicPropMixin {
         if (update != null) {
             update.accept(value);
         }
-    }
-
-    default <Var, ActionData> void bindAction(int action, Variable<Var> val, BiConsumer<Variable<Var>, ActionData> update) {
-        requireNonNull(val);
-        requireNonNull(update);
-
-        setProp("_bind_" + action, (Consumer<ActionData>) (ActionData actionData) -> update.accept(val, actionData));
     }
 
     default <ActionData> void bindAction(int action, Consumer<? extends ActionData> update) {

@@ -2,6 +2,7 @@ package xin.banana.binding;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Property;
 import android.view.View;
 import android.widget.TextView;
 
@@ -10,10 +11,10 @@ import java.util.List;
 
 import xin.banana.base.BiConsumer;
 import xin.banana.base.Consumer;
-import xin.banana.base.Function;
 import xin.banana.mixin.lifecycle.LifeCycle;
 import xin.banana.mixin.lifecycle.LifeCycleAware;
 
+import static xin.banana.base.Objects.checkState;
 import static xin.banana.base.Objects.requireNonNull;
 
 /**
@@ -46,36 +47,6 @@ public class Binding {
         addUnBinder(variable.registerObserver(() -> action.accept(variable.get())));
     }
 
-    public <T, A> void bind(Consumer<? super A> action, Variable<T> variable, Function<T, A> transform) {
-        requireNonNull(action);
-        requireNonNull(variable);
-        requireNonNull(transform);
-
-        addUnBinder(variable.registerObserver(() -> action.accept(transform.apply(variable.get()))));
-    }
-
-    public static <V extends TextView> void onTextChanged(V text, Consumer<Editable> consumer) {
-        requireNonNull(text);
-        requireNonNull(consumer);
-        
-        text.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                consumer.accept(s);
-            }
-        });
-    }
-
     private final List<Runnable> unBinders = new LinkedList<>();
 
     private void addUnBinder(Runnable unBinder) {
@@ -98,14 +69,7 @@ public class Binding {
             this.view = view;
         }
 
-        public <T> Binder<V> bind(BiConsumer<V, ? super T> attrSetter, T value) {
-            requireNonNull(attrSetter);
-            requireNonNull(value);
-
-            attrSetter.accept(view, value);
-            return this;
-        }
-
+        @SuppressWarnings("UnusedReturnValue")
         public <T> Binder<V> bind(BiConsumer<V, ? super T> attrSetter, Variable<? extends T> variable) {
             requireNonNull(attrSetter);
             requireNonNull(variable);
@@ -114,37 +78,53 @@ public class Binding {
             return this;
         }
 
-        @SuppressWarnings("UnusedReturnValue")
-        public <T, A> Binder<V> bind(BiConsumer<V, A> attrSetter, Variable<? extends T> variable, Function<T, ? extends A> transform) {
-            requireNonNull(attrSetter);
-            requireNonNull(variable);
-            requireNonNull(transform);
-
-            addUnBinder(variable.registerObserver(() -> attrSetter.accept(view, transform.apply(variable.get()))));
-            return this;
-        }
-
-        @SuppressWarnings("unused")
-        public <T> Binder<V> bind2(Consumer<? super T> action, Variable<? extends T> variable) {
-            requireNonNull(action);
-            requireNonNull(variable);
-
-            addUnBinder(variable.registerObserver(() -> action.accept(variable.get())));
-            return this;
-        }
-
-        public Binder<V> view(Consumer<V> consumer) {
-            requireNonNull(consumer).accept(view);
-            return this;
-        }
-
-        public V getView() {
-            return view;
+        public <T> Binder<V> bind(Property<V, ? super T> propertySetter, Variable<? extends T> variable) {
+            requireNonNull(propertySetter);
+            return bind(propertySetter::set, variable);
         }
 
         @SuppressWarnings("UnusedReturnValue")
         public Binder<V> onClick(View.OnClickListener onClickListener) {
             view.setOnClickListener(requireNonNull(onClickListener));
+            return this;
+        }
+
+        public Binder<V> enabled(Variable<? extends Boolean> variable) {
+            return bind(View::setEnabled, variable);
+        }
+
+        public Binder<V> onLongClick(View.OnLongClickListener onLongClickListener) {
+            view.setOnLongClickListener(requireNonNull(onLongClickListener));
+            return this;
+        }
+
+        public Binder<V> text(Variable<? extends CharSequence> variable) {
+            checkState(view instanceof TextView);
+            return bind((v, text) -> ((TextView) v).setText(text), variable);
+        }
+
+        public Binder<V> afterTextChanged(Consumer<? super Editable> onText) {
+
+            requireNonNull(onText);
+            checkState(view instanceof TextView);
+
+            ((TextView) view).addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    onText.accept(s);
+                }
+            });
+
             return this;
         }
     }

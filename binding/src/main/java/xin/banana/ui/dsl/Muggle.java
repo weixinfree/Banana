@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 
 import xin.banana.Banana;
 import xin.banana.base.Consumer;
+import xin.banana.binding.Binding;
 
 import static xin.banana.base.Objects.requireNonNull;
 
@@ -23,6 +24,10 @@ public class Muggle {
         //no instance
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
     public static final int match_parent = ViewGroup.LayoutParams.MATCH_PARENT;
     public static final int wrap_content = ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -33,6 +38,14 @@ public class Muggle {
     public static final Class<FrameLayout.LayoutParams> frameLayoutParams = FrameLayout.LayoutParams.class;
     public static final Class<LinearLayout.LayoutParams> linearLayoutParams = LinearLayout.LayoutParams.class;
     public static final Class<RelativeLayout.LayoutParams> relativeLayoutParams = RelativeLayout.LayoutParams.class;
+
+    public static final int visible = View.VISIBLE;
+    public static final int invisible = View.INVISIBLE;
+    public static final int gone = View.GONE;
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
 
     private static volatile float _density = -1;
 
@@ -72,6 +85,10 @@ public class Muggle {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
     public static <V extends View, Layout extends ViewGroup.LayoutParams> Leaf<V, Layout> leaf(V leaf, Class<Layout> layout) {
         return new Leaf<>(leaf, defaultLayout(layout));
     }
@@ -87,6 +104,10 @@ public class Muggle {
     public static <V extends ViewGroup, Layout extends ViewGroup.LayoutParams> Tree<V, Layout> tree(V leaf, Layout layout) {
         return new Tree<>(leaf, layout);
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
 
     public static class Leaf<V extends View, Layout extends ViewGroup.LayoutParams> {
         final V view;
@@ -105,6 +126,11 @@ public class Muggle {
 
         public Leaf<V, Layout> attrs(Consumer<? super V> attrSetter) {
             requireNonNull(attrSetter).accept(view);
+            return this;
+        }
+
+        public Leaf<V, Layout> binding(Consumer<Binding.Binder<V>> binderConsumer) {
+            requireNonNull(binderConsumer).accept(Binding.with(view.getContext()).on(view));
             return this;
         }
 
