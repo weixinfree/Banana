@@ -61,6 +61,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
         store.bindLifecycleTo(this);
 
+        // auto unbind onDestroy
         final Binding binding = Binding.with(this);
         setContentView(
                 container()
@@ -101,7 +102,6 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
                     binding.on(button)
                             .enabled(store.userInputName.map(userInput -> {
-                                Log.d("HAHAHA", "submitButton() called with: binding = [" + binding + "]");
                                 return !TextUtils.isEmpty(userInput) && userInput.length() >= 3;
                             }));
                 })

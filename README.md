@@ -51,6 +51,10 @@
 Store where hold states and deal business actions
 
 ```java
+/**
+ * 用户修改名字
+ * Created by wangwei on 2018/08/01.
+ */
 public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
 
     public static final int USER_NAME_MAX_LENGTH = 16;
@@ -58,46 +62,34 @@ public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
     public static final int ACTION_SUBMIT = 0x01;
     public static final int ACTION_USER_INPUT_CHANGED = 0x02;
 
-    /*
-    expose 给View层的是 可观察的Variable
-    内部状态 大部分应该为 pojo
-
-    final! final! final!
-     */
+    /* expose 给View层的是 可观察的Variable 内部状态 大部分应该为 pojo*/
     public final Variable<String> userInputName = new Variable<>("");
     public final Variable<Boolean> modifySuccess = new Variable<>();
 
     ModifyUserNameStore() {
-
         /*
-        store.dispatch 是单向数据流
-        但是非 Redux 模式的不可变对象
-
-        binding 模式的 reactive view 适合可变化对象
-         */
+         store.dispatch 是单向数据流
+         但是非 Redux 模式的不可变对象
+         binding 模式的 reactive view 适合可变化对象
+        */
         bindAction(ACTION_SUBMIT, (obj) -> {
 
-                    /*
-                    选择 bolts + stream 代替 RxJava
-                    10%的复杂度，覆盖80%的功能
-                     */
-                    final CancellationTokenSource cancelToken = new CancellationTokenSource();
-                    Task.delay(1000)
-                            .onSuccess((Continuation<Void, Void>) task -> {
-                                modifySuccess.set(Math.random() > 0.5);
-                                return null;
-                            }, Task.UI_THREAD_EXECUTOR, cancelToken.getToken());
+            /* 选择 bolts + stream 代替 RxJava 10%的复杂度，覆盖80%的功能
+             */
+            final CancellationTokenSource cancelToken = new CancellationTokenSource();
+            Task.delay(1000)
+                    .onSuccess((Continuation<Void, Void>) task -> {
+                        modifySuccess.set(Math.random() > 0.5);
+                        return null;
+                    }, Task.UI_THREAD_EXECUTOR, cancelToken.getToken());
 
-                    /*
-                     生命周期注入: 恰当的时候进行cancel
-                     */
-                    cancelOnDestroy(cancelToken::cancel);
+            /*
+             生命周期注入: 恰当的时候进行cancel
+             */
+            cancelOnDestroy(cancelToken::cancel);
         });
 
-        bindAction(
-                ACTION_USER_INPUT_CHANGED,
-                userInputName,
-                (BiConsumer<Variable<String>, String>) Variable::set);
+        bindAction(ACTION_USER_INPUT_CHANGED, userInputName::set);
     }
 }
 ```
@@ -105,6 +97,10 @@ public class ModifyUserNameStore implements StoreMixin, LifecycleAwareMixin {
 Activity - build user interface and binding, trigger business actions - glue code 
 
 ```java
+/**
+ * 用户修改名字
+ * Created by wangwei on 2018/08/01.
+ */
 public class ModifyUserNameActivity extends Activity implements LifecycleAwareMixin {
 
     /*
@@ -130,6 +126,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
         store.bindLifecycleTo(this);
 
+        // auto unbind onDestroy
         final Binding binding = Binding.with(this);
         setContentView(
                 container()
@@ -143,8 +140,7 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
 
         binding.bind(
                 msg -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show(),
-                store.modifySuccess,
-                isSuccess -> isSuccess ? "修改成功" : "修改失败"
+                store.modifySuccess.map(isSuccess -> isSuccess ? "修改成功" : "修改失败")
         );
 
     }
@@ -170,7 +166,9 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                             store.dispatch(ModifyUserNameStore.ACTION_SUBMIT, null));
 
                     binding.on(button)
-                            .bind(Button::setEnabled, store.userInputName, userInput -> !TextUtils.isEmpty(userInput) && userInput.length() >= 3);
+                            .enabled(store.userInputName.map(userInput -> {
+                                return !TextUtils.isEmpty(userInput) && userInput.length() >= 3;
+                            }));
                 })
                 .layout(layoutParams -> {
                     layoutParams.width = match_parent;
@@ -193,14 +191,11 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                     textView.setTextSize(12);
                     textView.setTextColor(Color.LTGRAY);
 
-                    binding.on(textView).bind(
-                            TextView::setText,
-                            store.userInputName,
-                            s -> {
+                    binding.on(textView).text(
+                            store.userInputName.map(s -> {
                                 final int len = s.length();
                                 return String.format(Locale.US, "您已经输入%d字，还剩%d字", len, ModifyUserNameStore.USER_NAME_MAX_LENGTH - len);
-
-                            });
+                            }));
                 });
     }
 
@@ -209,7 +204,23 @@ public class ModifyUserNameActivity extends Activity implements LifecycleAwareMi
                 .attrs(view -> {
                     view.setTextSize(18);
                     view.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ModifyUserNameStore.USER_NAME_MAX_LENGTH)});
-                    Binding.onTextChanged(view, editable -> store.dispatch(ModifyUserNameStore.ACTION_USER_INPUT_CHANGED, editable.toString()));
+
+                    view.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            store.dispatch(ModifyUserNameStore.ACTION_USER_INPUT_CHANGED, s.toString());
+                        }
+                    });
                 })
                 .layout(params -> {
                     params.height = wrap_content;
